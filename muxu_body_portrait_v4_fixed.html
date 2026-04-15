@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>身体画像·沐煦版｜遇见你的身体能量</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cream:#FAF6EF;--gold:#C8A96E;--dark:#1A1612;--gold-light:#E8D5B0;--gold-dark:#9A7B45;--warm-gray:#8C7E6A;--soft-brown:#3D3229;--accent:#B8544F;--night:#0F0E12}
+body{font-family:"Noto Serif SC","Songti SC","STSong","SimSun",serif;background:var(--cream);min-height:100vh;color:var(--dark);display:flex;justify-content:center;padding:0;-webkit-font-smoothing:antialiased}
+.stage{max-width:480px;width:100%;min-height:100vh;position:relative;overflow:hidden}
+
+/* 开屏 */
+.welcome{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;background:linear-gradient(180deg,var(--cream) 0%,#F5EDE0 100%);position:relative}
+.welcome::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:80px;background:linear-gradient(180deg,transparent,var(--gold))}
+.w-brand{font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:8px;color:var(--gold-dark);margin-bottom:6px;text-transform:uppercase;font-weight:300}
+.w-logo{font-size:36px;letter-spacing:12px;color:var(--dark);font-weight:300;margin:12px 0 8px}
+.w-sub{font-size:13px;color:var(--gold-dark);letter-spacing:4px;margin-bottom:40px;font-weight:300}
+.w-title{font-size:22px;color:var(--dark);letter-spacing:3px;font-weight:400;line-height:1.8;margin-bottom:8px}
+.w-desc{font-size:14px;color:var(--warm-gray);line-height:2;letter-spacing:1px;margin-bottom:50px;max-width:320px}
+.w-start{background:transparent;border:1px solid var(--gold);color:var(--dark);padding:14px 48px;font-family:inherit;font-size:15px;letter-spacing:6px;cursor:pointer;transition:all .4s ease;position:relative}
+.w-start:hover{background:var(--gold);color:var(--cream)}
+.w-start::before,.w-start::after{content:"";position:absolute;width:12px;height:12px;border-color:var(--gold);border-style:solid;transition:all .4s}
+.w-start::before{top:-4px;left:-4px;border-width:1px 0 0 1px}
+.w-start::after{bottom:-4px;right:-4px;border-width:0 1px 1px 0}
+
+/* 答题 */
+.quiz-wrap{min-height:100vh;padding:0 24px;display:flex;flex-direction:column;background:var(--cream)}
+.q-progress{padding:30px 0 20px;display:flex;align-items:center;gap:12px}
+.q-bar{flex:1;height:2px;background:var(--gold-light);position:relative;overflow:hidden}
+.q-bar-fill{height:100%;background:var(--gold);transition:width .5s ease;width:0}
+.q-num{font-size:14px;color:var(--warm-gray);letter-spacing:2px;font-family:"Cormorant Garamond",serif}
+.q-card{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:40px}
+.q-dim{font-size:11px;color:var(--gold-dark);letter-spacing:6px;margin-bottom:16px;font-weight:300}
+.q-text{font-size:19px;color:var(--dark);line-height:1.8;letter-spacing:2px;margin-bottom:36px;font-weight:400}
+.q-opts{display:flex;flex-direction:column;gap:12px}
+.q-opt{background:transparent;border:1px solid var(--gold-light);color:var(--dark);padding:16px 20px;text-align:left;font-family:inherit;font-size:15px;letter-spacing:1px;cursor:pointer;transition:all .35s ease;line-height:1.6;position:relative;overflow:hidden}
+.q-opt::before{content:"";position:absolute;inset:0;background:var(--gold);opacity:0;transition:opacity .35s;z-index:0}
+.q-opt span{position:relative;z-index:1}
+.q-opt:hover{border-color:var(--gold)}.q-opt:hover::before{opacity:.08}
+.q-opt.selected{border-color:var(--gold);background:rgba(200,169,110,.12)}.q-opt.selected::before{opacity:.12}
+.q-card{opacity:1;transform:translateY(0);transition:opacity .4s,transform .4s}
+.q-card.exit{opacity:0;transform:translateY(-20px)}.q-card.enter{opacity:0;transform:translateY(20px)}
+
+/* 排序题 */
+.rank-hint{font-size:12px;color:var(--warm-gray);letter-spacing:1px;margin-bottom:20px;line-height:1.8}
+.rank-grid{display:flex;flex-direction:column;gap:10px}
+.rank-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border:1px solid var(--gold-light);cursor:pointer;transition:all .3s;
+  font-size:15px;color:var(--dark);letter-spacing:1px;font-family:inherit;
+  background:transparent;text-align:left;line-height:1.5;
+}
+.rank-item:hover{border-color:var(--gold)}
+.rank-item.ranked{border-color:var(--gold);background:rgba(200,169,110,.1)}
+.rank-badge{
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--gold-light);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Cormorant Garamond",serif;font-size:13px;color:var(--warm-gray);
+  flex-shrink:0;transition:all .3s;
+}
+.rank-item.ranked .rank-badge{background:var(--gold);border-color:var(--gold);color:var(--cream)}
+.rank-emoji{font-size:18px;flex-shrink:0}
+.rank-label{flex:1}
+.rank-submit{
+  margin-top:20px;width:100%;padding:16px;background:var(--gold);border:1px solid var(--gold);
+  color:var(--cream);font-family:inherit;font-size:15px;letter-spacing:6px;cursor:pointer;
+  transition:all .3s;
+}
+.rank-submit:hover{background:var(--gold-dark)}
+.rank-submit:disabled{opacity:.3;cursor:not-allowed}
+
+/* 分析中 */
+.analyzing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;background:var(--cream)}
+.ripple-box{width:140px;height:140px;position:relative;margin-bottom:40px}
+.ripple{position:absolute;inset:0;border:1px solid var(--gold);border-radius:50%;animation:ripple 2.4s ease-out infinite;opacity:0}
+.ripple:nth-child(2){animation-delay:.8s}.ripple:nth-child(3){animation-delay:1.6s}
+@keyframes ripple{0%{transform:scale(.4);opacity:.8}100%{transform:scale(1.2);opacity:0}}
+.ripple-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--gold);border-radius:50%}
+.ana-text{font-size:14px;color:var(--warm-gray);letter-spacing:4px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* 结果卡 */
+.result-wrap{padding:24px 16px 40px;background:var(--cream)}
+.card{background:var(--cream);border:1px solid var(--gold);position:relative;overflow:hidden;box-shadow:0 4px 30px rgba(26,22,18,.08)}
+.card::before{content:"";position:absolute;inset:6px;border:0.5px solid rgba(200,169,110,.4);pointer-events:none;z-index:1}
+.card-header{text-align:center;padding:32px 20px 24px;border-bottom:1px solid rgba(200,169,110,.3);position:relative}
+.card-header::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:40px;height:1px;background:var(--gold)}
+.ch-brand{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:6px;color:var(--gold-dark);margin-bottom:4px;text-transform:uppercase;font-weight:300}
+.ch-type-en{font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:3px;color:var(--warm-gray);margin-bottom:8px;font-weight:300}
+.ch-emoji{font-size:32px;margin-bottom:4px}
+.ch-name{font-size:34px;letter-spacing:10px;color:var(--dark);font-weight:300;margin-bottom:4px}
+.ch-subtitle{font-size:13px;color:var(--gold-dark);letter-spacing:3px;font-weight:300;margin-bottom:6px}
+.ch-energy{font-size:12px;color:var(--accent);letter-spacing:4px;font-weight:400;margin-bottom:10px}
+.ch-tag{font-size:14px;color:var(--warm-gray);letter-spacing:2px;font-weight:300;line-height:1.8}
+.vibe-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
+.vibe-tag{display:inline-block;padding:4px 12px;background:rgba(200,169,110,.12);border:1px solid rgba(200,169,110,.3);font-size:11px;color:var(--gold-dark);letter-spacing:1.5px}
+
+/* 星图 */
+.starmap{position:relative;background:radial-gradient(ellipse at center,#1a1825 0%,var(--night) 100%);padding:30px 16px 24px;text-align:center;overflow:hidden;border-bottom:1px solid rgba(200,169,110,.3)}
+.starmap canvas{display:block;margin:0 auto 16px;max-width:100%}
+.star-rarity{position:relative;z-index:2}
+.star-label{font-size:11px;color:rgba(200,169,110,.6);letter-spacing:4px;margin-bottom:6px}
+.star-pct{font-family:"Cormorant Garamond",serif;font-size:56px;color:var(--gold);font-weight:300;line-height:1;margin-bottom:4px}.star-pct span{font-size:28px}
+.star-sub{font-size:12px;color:rgba(200,169,110,.7);letter-spacing:2px;margin-bottom:6px}
+.star-talent{font-size:13px;color:var(--gold-light);letter-spacing:1.5px;line-height:1.8}
+.star-talent em{font-style:normal;color:var(--gold);font-weight:600}
+
+/* 雷达 */
+.radar-section{padding:24px 16px;text-align:center;border-bottom:1px solid rgba(200,169,110,.3)}
+.radar-label{font-size:12px;color:var(--gold-dark);letter-spacing:4px;margin-bottom:16px}
+.radar-label::before,.radar-label::after{content:"";display:inline-block;width:20px;height:1px;background:var(--gold-light);vertical-align:middle;margin:0 10px}
+.radar-svg{display:block;margin:0 auto;max-width:280px}
+
+/* 内容 */
+.card-body{padding:24px 22px}
+.sec{padding:14px 0;border-bottom:1px solid rgba(200,169,110,.15)}.sec:last-child{border-bottom:none}
+.sec-label{font-size:12px;color:var(--gold-dark);letter-spacing:4px;margin-bottom:8px;font-weight:400}
+.sec-label::before{content:"";display:inline-block;width:12px;height:1px;background:var(--gold);margin-right:8px;vertical-align:middle}
+.sec-content{font-size:14px;color:var(--dark);line-height:2;letter-spacing:.5px;font-weight:300}
+
+/* 预言 */
+.prophecy-box{background:linear-gradient(180deg,rgba(200,169,110,.06),rgba(200,169,110,.12));border:1px solid rgba(200,169,110,.25);padding:22px 20px;margin-top:4px;position:relative}
+.prophecy-box::before{content:"✦";position:absolute;top:12px;right:16px;color:var(--gold-light);font-size:14px;opacity:.5}
+.prophecy-title{font-size:12px;color:var(--gold-dark);letter-spacing:4px;margin-bottom:10px}
+.prophecy-content{font-size:14px;color:var(--dark);line-height:2.2;letter-spacing:.5px;font-weight:300}
+
+/* 优先级 */
+.priority-box{margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.pri-tag{padding:5px 14px;font-size:12px;letter-spacing:2px}
+.pri-tag.t1{background:var(--gold);color:var(--cream)}
+.pri-tag.t2{background:rgba(200,169,110,.2);color:var(--dark)}
+.pri-tag.t3{background:rgba(200,169,110,.1);color:var(--warm-gray)}
+
+/* 课程 */
+.course-box{background:rgba(200,169,110,.08);border:1px solid rgba(200,169,110,.25);padding:18px 20px;margin-top:4px}
+.course-track{font-size:13px;color:var(--gold-dark);letter-spacing:3px;margin-bottom:6px;font-weight:400}
+.course-desc{font-size:13px;color:var(--dark);line-height:1.9;letter-spacing:.5px;font-weight:300}
+
+/* 搭档 */
+.match-box{background:rgba(184,84,79,.05);border:1px solid rgba(184,84,79,.2);padding:18px 20px;margin-top:4px;text-align:center}
+.match-label{font-size:11px;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
+.match-names{font-size:16px;color:var(--dark);letter-spacing:3px;margin-bottom:6px}
+.match-desc{font-size:12px;color:var(--warm-gray);line-height:1.8;letter-spacing:.5px}
+
+/* 底部CTA */
+.card-footer{text-align:center;padding:24px 20px;border-top:1px solid rgba(200,169,110,.3);position:relative}
+.card-footer::before{content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:40px;height:1px;background:var(--gold)}
+.cf-logo{font-size:16px;color:var(--dark);letter-spacing:6px;margin-bottom:4px}
+.cf-en{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:4px;color:var(--warm-gray);margin-bottom:12px;text-transform:uppercase}
+.cf-cta-main{display:inline-block;padding:10px 24px;border:1px solid var(--gold);font-size:13px;color:var(--dark);letter-spacing:3px;margin-bottom:8px}
+.cf-cta-sub{font-size:13px;color:var(--warm-gray);letter-spacing:1px;line-height:2;font-weight:300}
+.cf-price{font-size:11px;color:var(--gold-dark);letter-spacing:1px;margin-top:8px}
+.cf-addr{font-size:11px;color:var(--warm-gray);letter-spacing:1px;line-height:1.8;margin-top:6px}
+
+/* 裂变 */
+.viral-section{margin-top:20px;background:var(--cream);border:1px solid var(--gold);padding:24px 20px;text-align:center;position:relative}
+.viral-section::before{content:"";position:absolute;inset:6px;border:0.5px solid rgba(200,169,110,.4);pointer-events:none}
+.viral-title{font-size:15px;color:var(--dark);letter-spacing:3px;margin-bottom:6px;font-weight:400}
+.viral-sub{font-size:13px;color:var(--warm-gray);line-height:2;letter-spacing:1px;margin-bottom:16px}
+.copy-box{background:rgba(200,169,110,.06);border:1px solid rgba(200,169,110,.25);padding:16px;margin-bottom:16px;text-align:left;font-size:13px;color:var(--dark);line-height:2;letter-spacing:.5px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.viral-btns{display:flex;flex-direction:column;gap:10px}
+.v-btn{padding:14px;background:transparent;border:1px solid var(--gold);color:var(--dark);font-family:inherit;font-size:14px;letter-spacing:4px;cursor:pointer;transition:all .3s}
+.v-btn:hover{background:var(--gold);color:var(--cream)}
+.v-btn.primary{background:var(--gold);color:var(--cream)}.v-btn.primary:hover{background:var(--gold-dark)}
+
+/* 操作 */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.act-btn{padding:14px;background:transparent;border:1px solid var(--gold);color:var(--dark);font-family:inherit;font-size:14px;letter-spacing:4px;cursor:pointer;transition:all .3s}
+.act-btn:hover{background:var(--gold);color:var(--cream)}
+.act-btn:disabled{opacity:.4;cursor:wait}
+.act-btn.primary{background:var(--gold);color:var(--cream)}.act-btn.primary:hover{background:var(--gold-dark)}
+.save-hint{text-align:center;font-size:12px;color:var(--warm-gray);margin-top:16px;letter-spacing:1px;line-height:1.8}
+.save-preview{margin-top:16px;text-align:center}
+.save-preview img{max-width:100%;border:1px solid var(--gold-light);box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.hidden{display:none!important}
+@media(max-width:380px){.ch-name{font-size:28px;letter-spacing:8px}.q-text{font-size:17px}.q-opt{padding:14px 16px;font-size:14px}.star-pct{font-size:44px}}
+</style></head>
+<body>
+<div class="stage">
+
+<div id="welcome" class="welcome">
+  <div class="w-brand">MUXU PILATES</div>
+  <div class="w-logo">沐 煦</div>
+  <div class="w-sub">沐天地之气 · 煦生命之光</div>
+  <div class="w-title">身体能量测试</div>
+  <div class="w-desc">10道关于身体感知的小问题<br>解锁你的专属能量图谱<br>看看你是什么「练家子」体质</div>
+  <button class="w-start" onclick="startQuiz()">开 始 测 试</button>
+</div>
+
+<div id="quizWrap" class="quiz-wrap hidden">
+  <div class="q-progress"><div class="q-bar"><div class="q-bar-fill" id="qBarFill"></div></div><div class="q-num" id="qNum">1 / 10</div></div>
+  <div class="q-card" id="qCard"></div>
+</div>
+
+<div id="analyzing" class="analyzing hidden">
+  <div class="ripple-box"><div class="ripple"></div><div class="ripple"></div><div class="ripple"></div><div class="ripple-center"></div></div>
+  <div class="ana-text" id="anaText">正 在 感 知 你 的 能 量 ...</div>
+</div>
+
+<div id="resultWrap" class="result-wrap hidden">
+  <div class="card" id="card"></div>
+  <div class="actions">
+    <button class="act-btn primary" id="saveBtn">保 存 结 果</button>
+    <button class="act-btn" onclick="location.reload()">重 新 测 试</button>
+  </div>
+  <div id="saveArea" class="hidden">
+    <div class="save-hint">👇 长按图片保存，发小红书 / 朋友圈</div>
+    <div class="save-preview"><img id="saveImg" /></div>
+  </div>
+  <div class="viral-section">
+    <div class="viral-title">一 键 发 小 红 书</div>
+    <div class="viral-sub">复制下方文案，直接粘贴发布</div>
+    <div class="copy-box" id="copyBox"></div>
+    <div class="viral-btns">
+      <button class="v-btn primary" onclick="copyText()">复 制 文 案</button>
+      <button class="v-btn" onclick="copyLink()">复 制 链 接 · 发 给 朋 友 测</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ============================================================
+//  题库 10题
+// ============================================================
+const TOTAL=10;
+// Q1-Q8: 普通选择, Q9: 跨维度, Q10: 排序
+const quiz=[
+// Q1 身体事实 · 力/柔
+{dim:'身 体 感 知',q:'忙了一整天，你的身体最先喊累的地方是——',o:[
+{t:'脖子和肩膀，整个上半身都紧',d:[{d:'力',w:2}]},
+{t:'腰背，感觉撑了一天的架子',d:[{d:'力',w:1}]},
+{t:'四肢发软，能量好像被抽走了',d:[{d:'柔',w:1}]},
+{t:'说不上哪里，就是整个人"蔫"了',d:[{d:'柔',w:2}]}]},
+// Q2 愿望感受 · 力/柔
+{dim:'身 体 渴 望',q:'运动之后，你最享受的感觉是——',o:[
+{t:'大汗淋漓后的酣畅',d:[{d:'力',w:2}]},
+{t:'完成挑战后的成就感',d:[{d:'力',w:1}]},
+{t:'拉伸舒展后的松弛',d:[{d:'柔',w:1}]},
+{t:'安静呼吸后的平和',d:[{d:'柔',w:2}]}]},
+// Q3 身体事实 · 觉/展
+{dim:'身 体 本 能',q:'朋友突然拍了张你的照片，p完脸之后，你接下来最在意的是——',o:[
+{t:'体态，赶紧看看有没有驼背',d:[{d:'觉',w:2}]},
+{t:'精神状态，整个人看起来累不累',d:[{d:'觉',w:1}]},
+{t:'身材线条，这个角度腰和手臂怎么样',d:[{d:'展',w:1}]},
+{t:'整体氛围，照片发出去好不好看',d:[{d:'展',w:2}]}]},
+// Q4 愿望感受 · 觉/展
+{dim:'身 体 追 求',q:'做一个动作时，你更在意的是——',o:[
+{t:'肌肉有没有正确发力',d:[{d:'觉',w:2}]},
+{t:'哪里紧、哪里弱、哪里不对',d:[{d:'觉',w:1}]},
+{t:'姿态够不够优雅',d:[{d:'展',w:1}]},
+{t:'做完之后整个人气质有没有变',d:[{d:'展',w:2}]}]},
+// Q5 行为场景 · 稳/流
+{dim:'运 动 性 格',q:'一种运动方式最容易让你放弃的原因是——',o:[
+{t:'做了一阵子看不到效果',d:[{d:'稳',w:2}]},
+{t:'太忙了，时间凑不上',d:[{d:'稳',w:1}]},
+{t:'内容太重复，做着做着就腻了',d:[{d:'流',w:1}]},
+{t:'一个人坚持太难，缺点外力推动',d:[{d:'流',w:2}]}]},
+// Q6 愿望感受 · 稳/流
+{dim:'生 活 节 奏',q:'你的日常节奏更像——',o:[
+{t:'按部就班，规律让我安心',d:[{d:'稳',w:2}]},
+{t:'有大方向，细节随机应变',d:[{d:'稳',w:1}]},
+{t:'随性自在，看心情安排',d:[{d:'流',w:1}]},
+{t:'忙碌多变，每天都不一样',d:[{d:'流',w:2}]}]},
+// Q7 身体事实 · 修/塑
+{dim:'身 体 直 觉',q:'拍照或被拍时，你最本能的小动作是——',o:[
+{t:'抬头收下巴，不想显得没精神',d:[{d:'修',w:2}]},
+{t:'不自觉地挺了挺腰板',d:[{d:'修',w:1}]},
+{t:'吸气收腹，找个显瘦的角度',d:[{d:'塑',w:1}]},
+{t:'主要调表情和状态，整体感觉对就行',d:[{d:'塑',w:2}]}]},
+// Q8 愿望感受 · 修/塑
+{dim:'身 体 理 想',q:'对你来说，理想的身体状态是——',o:[
+{t:'没有疼痛，轻松自如',d:[{d:'修',w:2}]},
+{t:'体态端正，站姿从容',d:[{d:'修',w:1}]},
+{t:'线条分明，紧致有力',d:[{d:'塑',w:1}]},
+{t:'充满能量，自信发光',d:[{d:'塑',w:2}]}]},
+// Q9 跨维度 · 许愿
+{dim:'一 个 愿 望',q:'如果普拉提只能帮你实现一件事，你选——',o:[
+{t:'让肩颈腰背的老毛病消失',d:[{d:'修',w:2},{d:'力',w:1}]},
+{t:'拥有一眼就让人羡慕的体态',d:[{d:'塑',w:1},{d:'展',w:1}]},
+{t:'找到一种能长期坚持的运动习惯',d:[{d:'稳',w:2}]},
+{t:'由内而外的自信，整个人都不一样',d:[{d:'塑',w:2},{d:'展',w:1}]}]},
+// Q10 placeholder (排序题单独处理)
+null
+];
+
+const rankItems=[
+  {emoji:'🩹',label:'缓解疼痛',key:'pain'},
+  {emoji:'🧍‍♀️',label:'改善体态',key:'posture'},
+  {emoji:'✂️',label:'雕塑线条',key:'sculpt'},
+  {emoji:'✨',label:'提升气质',key:'elegance'},
+  {emoji:'🧘',label:'释放压力',key:'stress'},
+  {emoji:'🔋',label:'找回能量',key:'energy'},
+];
+
+// ============================================================
+//  16型
+// ============================================================
+const dimNames=[['力','柔'],['觉','展'],['稳','流'],['修','塑']];
+const dimIdx={'力':0,'柔':0,'觉':1,'展':1,'稳':2,'流':2,'修':3,'塑':3};
+
+const T={
+'力觉稳修':{name:'磐石',sub:'满级安全感',en:'THE BEDROCK',emoji:'🪨',energy:'山石之力',tag:'全世界都在卷，你是那块不动的石头',vibes:['靠谱担当','人间定海神针','抗压天花板'],rarity:7,rarityTalent:'你的身体天赋是：<em>扛得住</em>',desc:'你有一种天生的"稳"，别人慌的时候你是最后那道防线。你的身体忠诚地记录了你为所有人扛下的一切——肩颈和腰背的紧张，其实是力量的勋章。现在，是时候让这份力量为自己服务了。',prophecy:'你终于不是在"扛"，而是在"舒展"。肩颈松开的那一刻，你会想——原来不紧绷的自己，也可以这么有力量。从沐煦走出去的那个下午，整个世界都柔软了一度。',course:'煦·定制课程',courseDetail:'深层释放 + 体态重建方向，帮你把"为别人撑着"的力量，变成"为自己舒展"的能力。',ctaName:'磐石·释放体验课',ctaLine:'来沐煦，卸下你的铠甲，练一次只为自己的课。',tip:'每天花3分钟，闭眼感受双脚踩在地面的重量。你已经够稳了，现在允许自己松一口气。',match:'蝶舞',matchEmoji:'🦋',matchWhy:'一个把力量内化，一个把美感外放——你们是最互补的能量拍档。'},
+'力觉稳塑':{name:'青松',sub:'自律狠人',en:'THE PINE',emoji:'🌲',energy:'生长之力',tag:'你的身体管理，比你的时间管理还严格',vibes:['卷王本王','目标感拉满','行走的执行力'],rarity:9,rarityTalent:'你的身体天赋是：<em>精准进化</em>',desc:'你对自己有清晰的要求，也有把要求变成现实的能力。你不是来"试试"的，是来"练出结果"的。这种目标感是很多人羡慕的天赋——普拉提的精准控制，简直就是为你量身定做的。',prophecy:'你发现了一件事：慢下来不是放弃，是更高级的控制。当你学会用呼吸去引导动作，身体里那些你以为要"拼命练"才能得到的东西，反而自己来了。',course:'沐·常规课程',courseDetail:'体态塑形 + 核心力量方向，在精准控制中实现力与美的平衡。',ctaName:'青松·精进体验课',ctaLine:'来沐煦，遇见比你更"较真"的训练方式。',tip:'训练时试试减速30%——慢下来反而能找到更深层的发力感。这是高手才懂的秘密。',match:'轻云',matchEmoji:'☁️',matchWhy:'你负责目标和计划，她负责灵感和快乐——在一起训练永远不会无聊。'},
+'力觉流修':{name:'深泉',sub:'身体感知天才',en:'THE SPRING',emoji:'💧',energy:'感知之力',tag:'你的身体有自己的语言，而你听得懂',vibes:['人体感应器','细节控','直觉型选手'],rarity:5,rarityTalent:'你的身体天赋是：<em>超感知力</em>',desc:'你的身体感知力非常出色——别人要练半年才能找到的"发力感"，你可能一节课就能捕捉到。你的身体一直在跟你说话，现在只需要一个专业的翻译，帮你把这些信号转化成精准的调整。',prophecy:'你开始信任身体发出的每一个信号。那些微妙的酸、胀、紧的感觉，不再是"忍一忍就好"，而是通往舒适的导航。你突然意识到，原来听懂身体的话，就是最好的养生。',course:'煦·定制课程',courseDetail:'精准疗愈方向，结合呼吸训练，让你的身体感知力成为最大的训练优势。',ctaName:'深泉·感知体验课',ctaLine:'来沐煦，让你的身体直觉找到最好的翻译。',tip:'你的直觉很准。下次身体发出信号的时候，试着不忽略它——那是你最好的教练。',match:'烈阳',matchEmoji:'☀️',matchWhy:'你感知，她行动——你们能把训练变成一场高效又精准的身体对话。'},
+'力觉流塑':{name:'弦月',sub:'低调潜力股',en:'THE CRESCENT',emoji:'🌙',energy:'潜藏之力',tag:'没人看见的时候，你也在默默变强',vibes:['闷声搞事业','内核稳定','暗自生长'],rarity:6,rarityTalent:'你的身体天赋是：<em>隐藏进化</em>',desc:'你不是那种在朋友圈高调打卡的人，但你的身体一直在悄悄进化。你的优势是内驱力强、不需要外界认可也能坚持——这种品质在普拉提里极其珍贵，因为身体的深层改变本来就需要时间和安静。',prophecy:'有一天你会在镜子里看到一个让自己心动的人。不是突然变了，而是那些"没人看见的努力"终于有了形状——站姿变了，走路的节奏变了，眼神里多了一种说不出的笃定。',course:'沐·常规课程',courseDetail:'核心力量 + 整体塑形方向，在流畅动作中释放身体的隐藏潜能。',ctaName:'弦月·专项体验课',ctaLine:'来沐煦，遇见和你一样暗自生长的伙伴。',tip:'给自己建一个"身体日记"——不用发朋友圈，只写给自己看。三个月后翻回来，你会感谢现在的自己。',match:'焰火',matchEmoji:'✨',matchWhy:'你是安静的深水，她是绚烂的烟花——在一起训练，彼此都能看到自己没有的那面。'},
+'力展稳修':{name:'晨曦',sub:'元气回血型',en:'THE DAWN',emoji:'🌅',energy:'新生之力',tag:'每一次重新开始，你都比上次更耀眼',vibes:['满血复活','凤凰涅槃','重启就变强'],rarity:8,rarityTalent:'你的身体天赋是：<em>恢复力超强</em>',desc:'你身上有一种让人安心的"回春力"——不管经历过什么，你总能重新站起来，而且每次重启都比上次更好。你的身体现在需要的不是大刀阔斧的改造，而是一次温柔的、系统的、由内而外的唤醒。',prophecy:'你不再害怕"重新开始"这四个字。因为你发现，每一次回到垫子上，身体都记得你。它没有忘记你曾经的好，只是在等你回来唤醒它。',course:'煦·定制课程',courseDetail:'体态重建 + 功能恢复方向，系统性唤醒身体的力量与平衡。',ctaName:'晨曦·唤醒体验课',ctaLine:'来沐煦，你的身体一直在等你回来。',tip:'每天靠墙站3分钟，感受后脑、肩胛、臀部、脚跟四点一线——重建，从"站好"开始。',match:'花开',matchEmoji:'🌸',matchWhy:'你重建根基，她绽放美感——你们代表了普拉提最完整的旅程。'},
+'力展稳塑':{name:'烈阳',sub:'能量发电机',en:'THE SUN',emoji:'☀️',energy:'绽放之力',tag:'你发光的时候，整个房间都是你的舞台',vibes:['行走的多巴胺','人群焦点','越练越嗨'],rarity:10,rarityTalent:'你的身体天赋是：<em>天生发光体</em>',desc:'你对"变美"这件事有强烈的热情，而且你真的有行动力。你喜欢看到明确的变化和成果——训练对你来说既是投资也是享受。好消息是，你的能量感配上普拉提的精准度，简直是王炸组合。',prophecy:'你开始享受一种新的"美"——不是镜子里的数字变化，而是走进一个房间时，所有人都感受到你的气场。那种从骨骼排列中生长出来的自信，比任何滤镜都高级。',course:'沐·常规课程',courseDetail:'全身塑形 + 体态美学方向，打造线条、姿态、气质三位一体的蜕变。',ctaName:'烈阳·绽放体验课',ctaLine:'来沐煦，让你的身体成为最高级的表达。',tip:'每周给自己拍一张全身体态照。看得见的进步，是你最好的燃料。',match:'静水',matchEmoji:'🌊',matchWhy:'她让你学会慢下来，你让她学会绽放——在一起会变成最好的版本。'},
+'力展流修':{name:'山溪',sub:'忙碌中的自愈者',en:'THE BROOK',emoji:'🏞️',energy:'流动之力',tag:'一边冲浪一边疗伤，是你的超能力',vibes:['超级多面手','又忙又美','见缝插针养生'],rarity:11,rarityTalent:'你的身体天赋是：<em>流水自愈力</em>',desc:'你的生活永远排得很满，但你有一种了不起的能力：在高速运转中依然能照顾好自己。你不需要"停下来才能修复"，你需要的是一种能跟上你节奏的训练方式。',prophecy:'你学会了一件事：不必等到"有空了"才开始善待身体。每周那一节课，成了你给自己的充电仪式——走出沐煦的时候，你感觉不是少了一个小时，而是多了一整天的能量。',course:'沐·常规课程 + 煦·定制课程',courseDetail:'常规课程保持活力，定制课程精准修复——双轨并行，为你的高速人生保驾护航。',ctaName:'山溪·充能体验课',ctaLine:'来沐煦，忙碌的你也值得被温柔对待。',tip:'忙碌的日子里，10分钟的拉伸就是对身体最好的温柔。不必完美，但要持续。',match:'清月',matchEmoji:'🌕',matchWhy:'她的安静和你的活力刚好互补——她帮你慢下来，你带她动起来。'},
+'力展流塑':{name:'焰火',sub:'宝藏变身王',en:'THE SPARK',emoji:'✨',energy:'蜕变之力',tag:'你不是在变美，你是在进化',vibes:['百变大咖','什么都想试','蜕变体质'],rarity:8,rarityTalent:'你的身体天赋是：<em>超强适应力</em>',desc:'你的身体有一种很棒的适应力——不管什么运动方式，你总能很快上手。你可能尝试过很多运动，而普拉提是那个能让你"深度进化"而不只是"体验打卡"的选择。',prophecy:'你终于找到了一种不会"腻"的运动。因为每一节课，你的身体都在给你新的反馈——上周还做不到的动作，这周突然打通了。这种持续解锁新技能的感觉，让你上瘾。',course:'沐·常规课程',courseDetail:'全身塑形 + 体态美学方向，系统化你的身体天赋，让每次训练都不白练。',ctaName:'焰火·蜕变体验课',ctaLine:'来沐煦，解锁你身体的下一个版本。',tip:'把每一次训练当作一场身体的创作。专注、呼吸，然后让改变自然发生。',match:'深泉',matchEmoji:'💧',matchWhy:'你负责大胆尝试，她负责精准感知——在一起训练，效率直接翻倍。'},
+'柔觉稳修':{name:'静水',sub:'人间清醒体质',en:'THE STILL WATER',emoji:'🌊',energy:'深观之力',tag:'你最大的天赋，是听得懂身体的悄悄话',vibes:['佛系养生家','身体对话师','安静的力量'],rarity:5,rarityTalent:'你的身体天赋是：<em>静水深流</em>',desc:'你的身体感知力是真正的天赋——你能觉察到别人忽略的细微信号，这在普拉提里是极其珍贵的品质。你不需要"燃烧卡路里"式的训练，你需要的是对得起你感知力的精准调整和深层滋养。',prophecy:'你发现了一种比"拼命练"高级一百倍的方式——用觉知去感受每一块肌肉的状态，用呼吸去调整每一个不适。你的身体开始变成一个你真正理解的朋友，而不是一台需要维修的机器。',course:'煦·定制课程',courseDetail:'精准疗愈 + 呼吸训练方向，在温和中唤醒身体深层的修复力。',ctaName:'静水·滋养体验课',ctaLine:'来沐煦，给你的感知力一个最好的回应。',tip:'每天对一个身体部位说"谢谢"——今天是双手，明天是双脚。你的觉知，是疗愈的起点。',match:'烈阳',matchEmoji:'☀️',matchWhy:'你是深水，她是阳光——她让你学会表达，你让她学会倾听身体。'},
+'柔觉稳塑':{name:'清月',sub:'氛围感雕刻师',en:'THE MOON',emoji:'🌕',energy:'雕琢之力',tag:'别人在练肌肉，你在练气场',vibes:['高级感本人','慢工出细活','气质碾压'],rarity:6,rarityTalent:'你的身体天赋是：<em>天生质感</em>',desc:'你有自己的节奏和审美，不追求剧烈的改变，但你要求每一步都是"对的"。你柔韧性可能不错，需要在柔软中建立力量感；你的气质底子好，只需要精准的调整就能量变引发质变。',prophecy:'你的变化不是"瘦了几斤"，而是有人开始问你"最近是不是在学舞蹈"。你笑而不答——只有你知道，那是每周一次普拉提课后，脊柱多延伸了那一厘米带来的魔法。',course:'沐·常规课程',courseDetail:'核心建立 + 体态塑形方向，在控制与精准中找到身体的高级感。',ctaName:'清月·质感体验课',ctaLine:'来沐煦，雕琢只属于你的高级感。',tip:'从核心开始，腹横肌的启动是你建立身体支撑的第一步——这是气场的"地基"。',match:'山溪',matchEmoji:'🏞️',matchWhy:'你的精致和她的活力是绝配——一起训练，优雅和能量都有了。'},
+'柔觉流修':{name:'春雨',sub:'温柔治愈系',en:'THE RAIN',emoji:'🌧️',energy:'滋养之力',tag:'你对自己温柔，世界就会对你温柔',vibes:['岁月静好','温柔即力量','自愈力满格'],rarity:6,rarityTalent:'你的身体天赋是：<em>自愈力惊人</em>',desc:'你很懂得善待自己，也愿意给身体足够的时间去恢复。这种"不急不躁"的态度，在这个什么都要快的时代，反而是最稀缺的智慧。温和的方式对你最有效。',prophecy:'你开始享受一种没有焦虑感的运动——不比速度、不比强度、不比谁流的汗多。你只是安安静静地躺在垫子上，感受呼吸带着身体一点一点打开。下课后你会觉得：这才是运动本来应该有的样子。',course:'煦·定制课程',courseDetail:'温和疗愈方向，用最尊重身体的方式帮你找回平衡。',ctaName:'春雨·疗愈体验课',ctaLine:'来沐煦，做一次没有KPI的运动。',tip:'恢复期的身体最需要"被听见"。今天不想动？做3次深呼吸，也是一种训练。',match:'青松',matchEmoji:'🌲',matchWhy:'她的自律和你的柔软刚好互补——她带你突破，你帮她放松。'},
+'柔觉流塑':{name:'轻云',sub:'佛系练家子',en:'THE CLOUD',emoji:'☁️',energy:'自在之力',tag:'不设KPI的人生，身体也跟着自在了',vibes:['自在如风','身体探索家','快乐至上'],rarity:4,rarityTalent:'全馆最稀有的类型！你天生就知道怎么跟身体做朋友',desc:'你和身体的关系是"朋友"而不是"上下级"——不命令、不强迫、不焦虑，有什么感觉就顺着走。这种松弛感是很多人梦寐以求的天赋。',prophecy:'你爱上了那种"不用赢也很快乐"的感觉。没有打卡压力，没有体重焦虑，只有每次下课后身体轻盈得像刚从温泉里出来。普拉提对你来说不是任务，是礼物。',course:'沐·常规课程',courseDetail:'瑜伽拉伸 + 体态塑形方向，在变化中保持好奇，在探索中遇见惊喜。',ctaName:'轻云·自在体验课',ctaLine:'来沐煦，上一节没有KPI的课。',tip:'试试"盲盒式训练"——每次上课前不设预期，让身体告诉你今天想做什么。',match:'青松',matchEmoji:'🌲',matchWhy:'你是她紧绷人生里最好的解药——而她的专注，也能让你的训练更有收获。'},
+'柔展稳修':{name:'古木',sub:'大女主体质',en:'THE OLD TREE',emoji:'🌳',energy:'沉淀之力',tag:'你的从容，是时间酿出来的好底子',vibes:['底盘稳','越活越通透','沉淀型美人'],rarity:7,rarityTalent:'你的身体天赋是：<em>底子好到惊人</em>',desc:'你身上有一种经过沉淀的从容——不急不躁，知道什么对自己好，也知道好东西需要时间。你的身体底子其实非常好，只是需要一个懂你的人帮你把"好底子"变成"好状态"。这不是改造，是唤醒。',prophecy:'你发现一件让你开心的事：你的身体比你想象中"能干"得多。那些你以为做不了的动作，试了一下居然可以——你的底子一直在，只是等一个机会醒过来。',course:'煦·定制课程',courseDetail:'精准调整 + 功能优化方向，尊重你的身体智慧，让好底子真正发光。',ctaName:'古木·唤醒体验课',ctaLine:'来沐煦，唤醒你身体里藏着的好底子。',tip:'每天的散步就是最好的运动基础。走路时关注脚底的感受，觉知就在每一步里。',match:'焰火',matchEmoji:'✨',matchWhy:'你的稳和她的闪刚好互补——你教她沉淀，她帮你释放。'},
+'柔展稳塑':{name:'花开',sub:'天生体态挂',en:'THE BLOOM',emoji:'🌸',energy:'气韵之力',tag:'你不是在变美，你是在回到你本来的样子',vibes:['仙女本仙','优雅到骨子里','气质天赋'],rarity:5,rarityTalent:'你的身体天赋是：<em>天生气韵</em>',desc:'你追求的从来不是"练大肌肉"，而是一种整体的优雅——站姿、走路、举手投足间的那个"feel"。好消息是，你的气质底盘已经很好了，普拉提对你来说不是从零开始，而是精雕细琢、锦上添花。',prophecy:'你开始被人夸"气质变了"——不是五官变了，不是瘦了，而是一种说不清的东西：可能是走路时脊柱多延伸了两厘米，可能是坐下时不自觉地收了核心。你知道那是什么，你笑而不语。',course:'沐·常规课程',courseDetail:'体态美学 + 拉伸舒展方向，从脊柱延伸到指尖的全身气质提升。',ctaName:'花开·气韵体验课',ctaLine:'来沐煦，让你的美从骨骼里长出来。',tip:'走路时想象头顶有一根线轻轻向上拉——就这一个意识，就能改变整个气场。',match:'晨曦',matchEmoji:'🌅',matchWhy:'你们都在追求由内而外的改变——一起训练，美得很有层次。'},
+'柔展流修':{name:'柳丝',sub:'反差感天才',en:'THE WILLOW',emoji:'🌿',energy:'柔韧之力',tag:'看起来是软妹子，骨子里是狠角色',vibes:['柔韧性天赋','反差萌','外柔内刚'],rarity:4,rarityTalent:'恭喜解锁全馆<em>最柔软</em>的身体天赋！',desc:'你的柔韧性是天赋——很多人苦练半年才能做到的动作，你可能第一节课就能轻松完成。不过"太柔"有时也意味着缺少支撑，你需要在柔软中建立力量的"骨架"，让身体既灵活又稳定。',prophecy:'你终于理解了"柔中带刚"四个字——不是变硬，而是在柔软里找到了一种支撑力。就像柳树，看着随风摇曳，其实根基深得很。你的身体，开始既好看又好用。',course:'沐·常规课程 + 煦·定制课程',courseDetail:'常规课程建立核心力量，定制课程强化关节稳定性——让柔韧天赋变成真正的优势。',ctaName:'柳丝·塑能体验课',ctaLine:'来沐煦，给你的柔软加一副隐形骨架。',tip:'柔韧性好的人更要练核心。腹部的力量是你所有优雅动作的"隐形底座"。',match:'磐石',matchEmoji:'🪨',matchWhy:'你柔她刚，在一起训练就是"刚柔并济"的教科书组合。'},
+'柔展流塑':{name:'蝶舞',sub:'身体艺术家',en:'THE BUTTERFLY',emoji:'🦋',energy:'表达之力',tag:'别人在运动，你在用身体写诗',vibes:['天生舞者','美学天赋','身体会说话'],rarity:3,rarityTalent:'全馆<em>最稀有</em>！你的身体表达力是真正的艺术天赋',desc:'你的身体有一种天然的表达力——同样的动作，你做出来就是比别人好看。这不是玄学，是你对"美"的感知力在身体层面的投射。普拉提对你来说不只是训练，更是一种身体的艺术。',prophecy:'你找到了一种让身体"说话"的方式。每一个动作都不再只是训练，而是表达——你的力量、你的柔韧、你的节奏感，在垫子上编织成只属于你的舞蹈。有人说你"练普拉提像在跳舞"，你觉得那是最好的夸奖。',course:'沐·常规课程',courseDetail:'全身塑形 + 瑜伽拉伸方向，让每一个动作都充满流动的美感。',ctaName:'蝶舞·美学体验课',ctaLine:'来沐煦，让你的身体说出最美的语言。',tip:'在日常中保持"身体觉知"——拿杯子、开门、转身，都可以是优雅的。你值得这种精致。',match:'磐石',matchEmoji:'🪨',matchWhy:'你的美感加上她的力量——在一起训练，效果和颜值都拉满。'},
+};
+
+// ============================================================
+//  流程
+// ============================================================
+let curQ=0;const answers={};let rankOrder=[];
+function startQuiz(){document.getElementById('welcome').classList.add('hidden');document.getElementById('quizWrap').classList.remove('hidden');renderQuestion(0);}
+
+function renderQuestion(idx){
+  const card=document.getElementById('qCard');card.className='q-card enter';
+  document.getElementById('qBarFill').style.width=(idx/TOTAL*100)+'%';
+  document.getElementById('qNum').textContent=`${idx+1} / ${TOTAL}`;
+  if(idx===9){renderRankQ(card);} else {renderNormalQ(idx,card);}
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{card.className='q-card';});});
+}
+
+function renderNormalQ(idx,card){
+  const q=quiz[idx];
+  card.innerHTML=`<div class="q-dim">${q.dim}</div><div class="q-text">${q.q}</div><div class="q-opts">${q.o.map((o,i)=>`<button class="q-opt" onclick="pickOpt(${idx},${i})"><span>${o.t}</span></button>`).join('')}</div>`;
+}
+
+function renderRankQ(card){
+  rankOrder=[];
+  card.innerHTML=`
+    <div class="q-dim">训 练 愿 望</div>
+    <div class="q-text">给你的身体愿望排个序<br>按重要程度依次点击 👇</div>
+    <div class="rank-hint">点击 = 排序，再次点击 = 取消</div>
+    <div class="rank-grid" id="rankGrid">${rankItems.map((r,i)=>`
+      <button class="rank-item" data-idx="${i}" onclick="toggleRank(${i})">
+        <div class="rank-badge" id="rb${i}"></div>
+        <div class="rank-emoji">${r.emoji}</div>
+        <div class="rank-label">${r.label}</div>
+      </button>`).join('')}</div>
+    <button class="rank-submit" id="rankSubmit" disabled onclick="submitRank()">确 认 排 序</button>`;
+}
+
+function toggleRank(idx){
+  const pos=rankOrder.indexOf(idx);
+  if(pos>=0){rankOrder.splice(pos,1);} else {rankOrder.push(idx);}
+  // 更新UI
+  rankItems.forEach((_,i)=>{
+    const el=document.querySelector(`.rank-item[data-idx="${i}"]`);
+    const badge=document.getElementById('rb'+i);
+    const rpos=rankOrder.indexOf(i);
+    if(rpos>=0){el.classList.add('ranked');badge.textContent=rpos+1;}
+    else{el.classList.remove('ranked');badge.textContent='';}
+  });
+  document.getElementById('rankSubmit').disabled=rankOrder.length<3;
+}
+
+function submitRank(){
+  document.getElementById('qBarFill').style.width='100%';
+  setTimeout(showAnalyzing,400);
+}
+
+function pickOpt(qIdx,oIdx){
+  const q=quiz[qIdx],o=q.o[oIdx];
+  answers[qIdx]=o.d; // array of {d,w}
+  document.querySelectorAll('.q-opt').forEach((el,i)=>el.classList.toggle('selected',i===oIdx));
+  setTimeout(()=>{
+    const card=document.getElementById('qCard');card.className='q-card exit';
+    setTimeout(()=>{curQ=qIdx+1;renderQuestion(curQ);},350);
+  },500);
+}
+
+function showAnalyzing(){
+  document.getElementById('quizWrap').classList.add('hidden');document.getElementById('analyzing').classList.remove('hidden');
+  const msgs=['正 在 感 知 你 的 能 量 ...','读 取 你 的 力 量 与 柔 韧 ...','匹 配 你 的 专 属 图 谱 ...','解 锁 你 的 隐 藏 天 赋 ...'];
+  let i=0;const el=document.getElementById('anaText');
+  const t=setInterval(()=>{i++;if(i<msgs.length){el.textContent=msgs[i];}else{clearInterval(t);showResult();}},1200);
+}
+
+// ============================================================
+//  星图
+// ============================================================
+function drawStarMap(canvas){
+  const W=canvas.width=360,H=canvas.height=220,ctx=canvas.getContext('2d');
+  const stars=[];for(let i=0;i<60;i++){stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,a:Math.random()*.4+.1,s:Math.random()*2+1});}
+  const typeStars=[{x:80,y:40},{x:180,y:30},{x:280,y:45},{x:50,y:90},{x:140,y:75},{x:220,y:85},{x:310,y:80},{x:40,y:140},{x:130,y:150},{x:230,y:140},{x:300,y:145},{x:70,y:190},{x:160,y:185},{x:250,y:195},{x:330,y:175},{x:180,y:110}];
+  const cx=W/2,cy=H/2;let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{const f=Math.sin(frame*0.02*s.s+s.x)*0.3+0.7;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,169,110,${s.a*f})`;ctx.fill();});
+    typeStars.forEach((s,i)=>{if(i<typeStars.length-1){ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(typeStars[i+1].x,typeStars[i+1].y);ctx.strokeStyle='rgba(200,169,110,0.06)';ctx.lineWidth=0.5;ctx.stroke();}ctx.beginPath();ctx.arc(s.x,s.y,1.5,0,Math.PI*2);ctx.fillStyle='rgba(200,169,110,0.25)';ctx.fill();});
+    const glow=Math.sin(frame*0.03)*0.15+0.85;
+    const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,50);grad.addColorStop(0,`rgba(200,169,110,${0.3*glow})`);grad.addColorStop(0.5,`rgba(200,169,110,${0.08*glow})`);grad.addColorStop(1,'rgba(200,169,110,0)');ctx.fillStyle=grad;ctx.fillRect(cx-50,cy-50,100,100);
+    ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle=`rgba(232,213,176,${glow})`;ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,1.5,0,Math.PI*2);ctx.fillStyle='#FAF6EF';ctx.fill();
+    frame++;requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ============================================================
+//  8轴雷达
+// ============================================================
+function makeRadar(result){
+  const size=260,cx=size/2,cy=size/2,r=85,n=8;
+  const traits=['力','觉','稳','修','柔','展','流','塑'];
+  const pairIdx=[0,1,2,3,0,1,2,3];
+  const isFirst=[true,true,true,true,false,false,false,false];
+  const angles=traits.map((_,i)=>-Math.PI/2+i*(Math.PI*2/n));
+  const vals=traits.map((_,i)=>{
+    const pi=pairIdx[i],res=result[pi],first=dimNames[pi][0];
+    if(isFirst[i]) return res.pick===first?res.pct/100:(100-res.pct)/100;
+    else return res.pick!==first?res.pct/100:(100-res.pct)/100;
+  });
+  const gridLines=[0.33,0.66,1].map(s=>angles.map(a=>`${cx+Math.cos(a)*r*s},${cy+Math.sin(a)*r*s}`).join(' '));
+  const axes8=angles.map(a=>`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="rgba(200,169,110,0.15)" stroke-width="0.5"/>`).join('');
+  const grids=gridLines.map(pts=>`<polygon points="${pts}" fill="none" stroke="rgba(200,169,110,0.1)" stroke-width="0.5"/>`).join('');
+  const dataPoints=vals.map((v,i)=>`${cx+Math.cos(angles[i])*r*v},${cy+Math.sin(angles[i])*r*v}`).join(' ');
+  const dots=vals.map((v,i)=>v<0.4?'':`<circle cx="${cx+Math.cos(angles[i])*r*v}" cy="${cy+Math.sin(angles[i])*r*v}" r="3" fill="#C8A96E"/>`).join('');
+  const lblSvg=traits.map((t,i)=>{
+    const pi=pairIdx[i],res=result[pi],isPicked=res.pick===t;
+    const dist=isPicked?r+24:r+20,lx=cx+Math.cos(angles[i])*dist,ly=cy+Math.sin(angles[i])*dist;
+    const fill=isPicked?'#C8A96E':'rgba(140,126,106,0.45)',fsize=isPicked?'14':'11',fw=isPicked?'font-weight:400':'font-weight:300';
+    return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" fill="${fill}" font-size="${fsize}" font-family="Noto Serif SC,serif" letter-spacing="2" style="${fw}">${t}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" class="radar-svg" xmlns="http://www.w3.org/2000/svg">${grids}${axes8}<polygon points="${dataPoints}" fill="rgba(200,169,110,0.12)" stroke="#C8A96E" stroke-width="1.5"/>${dots}${lblSvg}</svg>`;
+}
+
+// ============================================================
+//  结果
+// ============================================================
+function showResult(){
+  // 计分
+  const scores=[{},{},{},{}];
+  for(let i=0;i<9;i++){
+    if(!answers[i]) continue;
+    answers[i].forEach(({d,w})=>{
+      const di=dimIdx[d];
+      scores[di][d]=(scores[di][d]||0)+w;
+    });
+  }
+  const result=scores.map((s,i)=>{
+    const[a,b]=dimNames[i];const av=s[a]||0,bv=s[b]||0,total=av+bv||1;
+    const pa=Math.round(av/total*100);
+    return{pick:pa>=50?a:b,other:pa>=50?b:a,pct:pa>=50?pa:100-pa};
+  });
+  const code=result.map(r=>r.pick).join('');
+  const t=T[code]||T['柔觉稳修'];
+
+  // 优先级标签
+  const top3=rankOrder.slice(0,3).map(i=>rankItems[i]);
+  const priLabels=top3.map(r=>r.emoji+' '+r.label);
+
+  // 根据排序微调课程描述
+  const topKey=rankItems[rankOrder[0]]?.key||'';
+  const focusMap={pain:'特别关注疼痛管理与深层释放',posture:'重点针对体态校准与脊柱排列',sculpt:'聚焦线条雕塑与肌肉精准激活',elegance:'着重气质提升与身体美学表达',stress:'融入呼吸减压与身心放松训练',energy:'强化能量唤醒与活力重建'};
+  const focusLine=focusMap[topKey]||'';
+
+  document.getElementById('card').innerHTML=`
+    <div class="card-header">
+      <div class="ch-brand">MUXU PILATES · BODY PORTRAIT</div>
+      <div class="ch-type-en">${t.en}</div>
+      <div class="ch-emoji">${t.emoji}</div>
+      <div class="ch-name">${t.name}</div>
+      <div class="ch-subtitle">${t.sub}</div>
+      <div class="ch-energy">✦ ${t.energy} ✦</div>
+      <div class="ch-tag">「 ${t.tag} 」</div>
+      <div class="vibe-tags">${t.vibes.map(v=>`<span class="vibe-tag">#${v}</span>`).join('')}</div>
+    </div>
+    <div class="starmap"><canvas id="starCanvas"></canvas>
+      <div class="star-rarity">
+        <div class="star-label">在 沐 煦 的 能 量 图 谱 中</div>
+        <div class="star-pct" id="rarityNum">0<span>%</span></div>
+        <div class="star-sub">的 人 与 你 同 频</div>
+        <div class="star-talent">${t.rarityTalent}</div>
+      </div>
+    </div>
+    <div class="radar-section"><div class="radar-label">能 量 维 度</div>${makeRadar(result)}</div>
+    <div class="card-body">
+      <div class="sec"><div class="sec-label">你 的 身 体 语 言</div><div class="sec-content">${t.desc}</div></div>
+      <div class="sec"><div class="sec-label">能 量 预 言</div>
+        <div class="prophecy-box"><div class="prophecy-title">当 你 开 始 练 习</div><div class="prophecy-content">${t.prophecy}</div></div>
+      </div>
+      ${top3.length?`<div class="sec"><div class="sec-label">你 的 训 练 优 先 级</div><div class="priority-box">${top3.map((r,i)=>`<span class="pri-tag t${i+1}">${r.emoji} ${r.label}</span>`).join('')}</div></div>`:''}
+      <div class="sec"><div class="sec-label">推 荐 课 程 方 向</div>
+        <div class="course-box">
+          <div class="course-track">${t.course}</div>
+          <div class="course-desc">${t.courseDetail}${focusLine?'<br>根据你的优先级，'+focusLine+'。':''}</div>
+        </div>
+      </div>
+      <div class="sec"><div class="sec-label">灵 魂 训 练 搭 档</div>
+        <div class="match-box"><div class="match-label">你 的 天 选 搭 子</div><div class="match-names">${t.matchEmoji} ${t.match}</div><div class="match-desc">${t.matchWhy}</div></div>
+      </div>
+      <div class="sec"><div class="sec-label">今 日 身 体 锦 囊</div><div class="sec-content">${t.tip}</div></div>
+    </div>
+    <div class="card-footer">
+      <div class="cf-logo">沐 煦</div><div class="cf-en">MUXU PILATES</div>
+      <div class="cf-cta-main">私信预约【${t.ctaName}】</div>
+      <div class="cf-cta-sub">${t.ctaLine}</div>
+      <div class="cf-price">体验价 ¥128</div>
+      <div class="cf-addr">苏州工业园区 · 诚品居所 · 月廊街8号 2幢 1509</div>
+    </div>`;
+
+  // 星图
+  const canvas=document.getElementById('starCanvas');if(canvas) drawStarMap(canvas);
+  // 稀有度动画
+  let cur=0;const target=t.rarity,numEl=document.getElementById('rarityNum');
+  const counter=setInterval(()=>{cur++;if(cur>=target){cur=target;clearInterval(counter);}numEl.innerHTML=`${cur}<span>%</span>`;},120);
+
+  // 小红书文案
+  const priText=top3.length ? `\n我的训练优先级：${priLabels.join(' > ')}` : '';
+  const shareText=`普拉提人格测试｜我是"${t.name}"型选手！\n测出来只有${t.rarity}%的人拥有的【${t.sub}】体质${t.emoji}\n主打一个 ${t.vibes.map(v=>'#'+v).join(' ')}\n「${t.tag}」💪${priText}\n我的天选训练搭子是"${t.match}"${t.matchEmoji}！\n你们的搭子是谁？快来评论区认领～👇\n\n📍沐煦 MUXU Pilates · 苏州诚品居所\n#普拉提 #身材管理 #苏州普拉提 #身体能量测试`;
+  document.getElementById('copyBox').textContent=shareText;window._shareText=shareText;
+
+  document.getElementById('analyzing').classList.add('hidden');document.getElementById('resultWrap').classList.remove('hidden');
+
+  // 保存
+  document.getElementById('saveBtn').onclick=async()=>{
+    const btn=document.getElementById('saveBtn');btn.textContent='生 成 中 ...';btn.disabled=true;
+    try{const c=await html2canvas(document.getElementById('card'),{scale:3,backgroundColor:'#FAF6EF',useCORS:true,logging:false});const url=c.toDataURL('image/png');document.getElementById('saveImg').src=url;document.getElementById('saveArea').classList.remove('hidden');if(!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){const a=document.createElement('a');a.download=`沐煦身体画像_${t.name}.png`;a.href=url;a.click();}document.getElementById('saveArea').scrollIntoView({behavior:'smooth',block:'center'});}catch(e){console.error(e);alert('生成失败，请尝试截图保存');}
+    btn.textContent='保 存 结 果';btn.disabled=false;
+  };
+}
+
+// ============================================================
+//  裂变
+// ============================================================
+function copyText(){
+  const text=window._shareText||'';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>{const b=document.querySelectorAll('.v-btn')[0];b.textContent='已 复 制 ！ 去 发 小 红 书 吧';setTimeout(()=>{b.textContent='复 制 文 案';},2500);}).catch(()=>fallbackCopy(text));}else{fallbackCopy(text);}
+}
+function copyLink(){
+  const url=window.location.href;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>{const b=document.querySelectorAll('.v-btn')[1];b.textContent='已 复 制 ！ 快 发 给 朋 友';setTimeout(()=>{b.textContent='复 制 链 接 · 发 给 朋 友 测';},2500);}).catch(()=>fallbackCopy(url));}else{fallbackCopy(url);}
+}
+function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');alert('已复制！');}catch(e){alert('请手动复制');}document.body.removeChild(ta);}
+</script>
+</body></html>
